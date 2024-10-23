@@ -1,0 +1,101 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "net.serenity-bdd.serenity-gradle-plugin" version "4.0.15"
+    id "io.freefair.lombok" version "6.5.1"
+    id "net.gradleutil.gradle-conf" version "1.1.15"
+}
+defaultTasks 'clean', 'test', 'aggregate'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+ext {
+    slf4jVersion = '1.7.25'
+    serenityCoreVersion = '4.0.15'
+    serenityCucumberVersion = '4.0.46'
+    junitVersion = '5.10.0'
+    assertJVersion = '3.24.2'
+    logbackVersion = '1.2.11'
+    jacksonAnnotations = "2.13.3"
+}
+
+wrapper {
+    gradleVersion '8.2.1'
+    distributionType Wrapper.DistributionType.ALL
+}
+
+dependencies {
+    implementation group: 'log4j', name: 'log4j', version: '1.2.17'
+    implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '11.2.3.jre17'
+    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
+    implementation(
+            "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-cucumber:${serenityCucumberVersion}",
+            "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-ensure:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay-rest:${serenityCoreVersion}",
+            "ch.qos.logback:logback-classic:${logbackVersion}",
+            "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotations}",
+            "org.junit.jupiter:junit-jupiter-api:${junitVersion}",
+            "org.assertj:assertj-core:${assertJVersion}",
+            group: 'org.json', name: 'json', version: '20230227'
+
+
+    )
+    testImplementation(
+            "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-ensure:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-cucumber:${serenityCucumberVersion}",
+            "org.junit.jupiter:junit-jupiter-api:${junitVersion}",
+            "org.assertj:assertj-core:${assertJVersion}",
+    )
+    testImplementation 'junit:junit:4.13.1'
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation 'org.slf4j:slf4j-simple:2.0.1'
+    implementation 'com.amazonaws:aws-java-sdk-bom:1.12.461'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.461'
+    implementation 'com.amazonaws:aws-java-sdk-stepfunctions:1.12.461'
+    implementation 'com.amazonaws:aws-java-sdk-logs:1.12.461'
+    implementation 'com.amazonaws:aws-java-sdk-cloudwatch:1.12.461'
+    implementation 'com.amazonaws:aws-java-sdk-events:1.12.461'
+    implementation 'com.amazonaws:aws-java-sdk-lambda:1.12.461'
+
+    implementation group: 'com.oracle.database.jdbc', name: 'ojdbc10', version: '19.18.0.0'
+
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+
+    implementation 'org.apache.poi:poi:5.2.2'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.2'
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
+}
+
+test {
+    systemProperties System.getProperties()
+}
+
+serenity {
+    // Specify the root package of any JUnit acceptance tests
+    testRoot = "proyectoScreenPlay"
+
+    // Specify the root directory of any Cucumber feature files
+    requirementsDir = "src/test/resources/features"
+}
+
+gradle.startParameter.continueOnFailure = true
+
+test.finalizedBy(aggregate)
